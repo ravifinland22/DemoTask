@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'io.cucumber:cucumber-java:7.5.0'
+    implementation 'io.cucumber:cucumber-junit:7.5.0'
+    implementation 'io.cucumber:cucumber-junit-platform-engine:7.5.0'
+    implementation 'io.appium:java-client:8.2.0'
+    implementation 'org.seleniumhq.selenium:selenium-java:4.4.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4'
+
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+task softpaydemo() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = [
+                    '--plugin', 'pretty',
+                    '--plugin', 'html:target/cucumber-report.html',
+                    '--tags','@smoke',
+                    '--glue', 'org.example.ui.stepdefinitions',
+                    'src/test/resources']
+        }
+    }
+}
